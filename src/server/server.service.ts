@@ -43,12 +43,9 @@ export class ServerService {
     });
   }
 
-  async doesRoomExist(roomName: string): Promise<boolean> {
-    this._AppServer.rooms.forEach(room => {
-      if (room.name === roomName) return true;
-    });
-    return false;
-  }
+  //   async sendMessageToRoom(socket: Socket, data: MessageData) {
+  //     // this.server.emit();
+  //   }
 
   async addUserToRoom(user: ServerUser, roomName: string): Promise<void> {
     var room = this._AppServer.rooms.find(room => room.name === roomName);
@@ -79,6 +76,11 @@ export class ServerService {
         socket: socket,
       };
       this._AppServer.users.push(newUser);
+      this.server.emit(
+        'EVENT_SERVER',
+        newUser.user.username + ' joined the server',
+      );
+      console.log('hey');
     } catch (e) {
       console.log(e.message);
     }
@@ -117,11 +119,10 @@ export class ServerService {
 
     socket.join(room);
     this.server
-      .emit('eventRoom', user.user.username + ' joined the room')
+      .emit('EVENT_ROOM', user.user.username + ' joined the room')
       .to(room);
 
     this.addUserToRoom(user, room);
-    this.displayServerState();
   }
 
   async leaveRoom(socket: Socket, room: string): Promise<void> {
@@ -130,7 +131,7 @@ export class ServerService {
 
     socket.leave(room);
     this.server
-      .emit('eventRoom', user.user.username + ' left the room')
+      .emit('EVENT_ROOM', user.user.username + ' left the room')
       .to(room);
   }
 }
