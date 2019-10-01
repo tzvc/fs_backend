@@ -34,15 +34,6 @@ export class ServerGateway implements OnGatewayDisconnect, OnGatewayInit {
     this._ServerService.leaveRoom(socket, room);
   }
 
-  // @SubscribeMessage('messageRoom')
-  // async sendMessageToRoom(socket: Socket, message: Message) {
-  //   this._ServerService.sendMessageToRoom(
-  //     socket,
-  //     message.message,
-  //     message.room,
-  //   );
-  // }
-
   async handleDisconnect(socket: Socket) {
     this._ServerService.logout(socket);
   }
