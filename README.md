@@ -1,91 +1,43 @@
 # FS_backend
 
-## CLIENT -> SERVER
+## WORKFLOW
 
-### Global Header
+curl -X POST http://localhost:3000/api/register -d '{"username": "Maxime", "password": "alpine"}' -H "Content-Type: application/json"
 
-- "LOGIN_REQUEST"
+-> {"userId":2,"username":"Maxime","password":"alpine"}
+
+curl -X POST http://localhost:3000/api/login -d '{"username": "Maxime", "password": "alpine"}' -H "Content-Type: application/json"
+
+-> {"userId":2,"username":"Maxime","password":"alpine","token":"Maxime2"}
+
+---
 
 ```
-socket.emit('LOGIN_REQUEST', {
-  username: 'root1',
-  password: 'alpine1',
+var socket = require('socket.io-client')('http://localhost:3000/lobby');
+
+var user = {
+    username: 'Maxime',
+    password: 'alpine',
+    token: 'Maxime2',
+};
+
+socket.on('UPDATE_USERS_IN_ROOM', data => {
+  console.log(data);
 });
-```
 
-- "JOIN_ROOM_REQUEST"
+socket.on('UPDATE_ROOMS_IN_SERVER', data => {
+  console.log(data);
+});
 
-```
-socket.emit('JOIN_ROOM_REQUEST', 'Room1');
-```
+socket.on('MESSAGE', data => {
+  console.log(data);
+});
 
-- "LEAVE_ROOM_REQUEST"
+socket.emit('LOGIN_REQUEST', user);
+socket.emit('JOIN_ROOM_REQUEST', 'room1');
 
-```
-socket.emit('LEAVE_ROOM_REQUEST', 'Room1');
-```
-
-### Room Header
-
-- "MESSAGE"
-
-```
 socket.emit('MESSAGE', {
-    data: "Salut les gars"
-});
-```
-
-## SERVER -> CLIENT
-
-### Global Header
-
-- "UPDATE_SERVER"
-
-type: "ROOMS"
-type: "USERS"
-
-```
-server.emit('UPDATE_SERVER', {
-    type: "ROOMS",
-    data: ["room1", "room2]
-});
-
-server.emit('UPDATE_SERVER', {
-    type: "USERS",
-    data: ["Maxime", "Theo]
-});
-```
-
----
-
-- "MESSAGE_SERVER"
-
-```
-server.emit('MESSAGE_SERVER', {
-    from: "Tartampion",
-    message: "Hi guys !"
-});
-```
-
-### Room Header
-
-- "UPDATE_ROOM"
-
-type: "USERS"
-
-```
-server.emit('UPDATE_ROOM', {
-    type: "USERS",
-    data: ["room1", "room2]
-});```
-
----
-
-- "MESSAGE_ROOM"
-
-```
-server.to('Room1').emit('MESSAGE_ROOM', {
-    from: "Tartampion",
-    message: "Hi guys !"
+  token: 'Maxime2',
+  data: 'Heyyy !',
 });
 ```

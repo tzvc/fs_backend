@@ -11,19 +11,19 @@ export class UsersService {
         userId: 0,
         username: 'root',
         password: 'alpine',
-        token: ""
+        token: '',
       },
       {
         userId: 1,
         username: 'root1',
         password: 'alpine1',
-        token: ""
+        token: '',
       },
     ];
   }
 
-  private async  generateToken(user: User): Promise<string> {
-    return user.username+user.userId
+  private async generateToken(user: User): Promise<string> {
+    return user.username + user.userId;
   }
 
   async login(username: string, password: string): Promise<User> {
@@ -32,16 +32,22 @@ export class UsersService {
     let user = this.users.find(user => user.username === username);
     if (!user || user.password !== password) throw Error('Invalid credentials');
 
-    user.token = await this.generateToken(user)
+    user.token = await this.generateToken(user);
 
     return user;
   }
 
-  async loginWithToken(username: string, password: string, token: string): Promise<User> {
-    if (!username || !password || !token) throw Error('(Username | Password | Token) null');
+  async loginWithToken(
+    username: string,
+    password: string,
+    token: string,
+  ): Promise<User> {
+    if (!username || !password || !token)
+      throw Error('(Username | Password | Token) null');
 
     let user = this.users.find(user => user.username === username);
-    if (!user || user.password !== password || user.token !== token) throw Error('Invalid credentials');
+    if (!user || user.password !== password || user.token !== token)
+      throw Error('Invalid credentials');
 
     return user;
   }
@@ -49,8 +55,10 @@ export class UsersService {
   async register(username: string, password: string): Promise<User> {
     if (!username || !password) throw Error('(Username | Password) null');
 
-    let user: User = this.users.find(user => user.username === username);
-    if (user) throw Error('Username already taken');
+    if (this.users.find(user => user.username === username))
+      throw Error('Username already taken');
+
+    let user: User = new User();
 
     user.userId = this.users.length;
     user.username = username;

@@ -5,12 +5,12 @@ export class User {
   token: string;
 }
 
-export class NetworkObjectAfterAuth {
+export class MessageFromClient {
   token: string;
-  from: string;
-  data: any;
+  data: string;
 }
 
-export class Message extends NetworkObjectAfterAuth {
-  any: string;
+export class NetworkMessageFromServer {
+  from: string;
+  data: string;
 }
