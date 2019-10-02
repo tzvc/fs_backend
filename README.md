@@ -39,18 +39,29 @@ socket.emit('MESSAGE', {
 
 ### Global Header
 
-- "EVENT"
+- "UPDATE_SERVER"
+
+type: "ROOMS"
+type: "USERS"
 
 ```
-server.emit('EVENT', {
-    data: "root1 joined the server"
+server.emit('UPDATE_SERVER', {
+    type: "ROOMS",
+    data: ["room1", "room2]
+});
+
+server.emit('UPDATE_SERVER', {
+    type: "USERS",
+    data: ["Maxime", "Theo]
 });
 ```
 
-- "MESSAGE"
+---
+
+- "MESSAGE_SERVER"
 
 ```
-server.emit('MESSAGE', {
+server.emit('MESSAGE_SERVER', {
     from: "Tartampion",
     message: "Hi guys !"
 });
@@ -58,13 +69,17 @@ server.emit('MESSAGE', {
 
 ### Room Header
 
-- "EVENT_ROOM"
+- "UPDATE_ROOM"
+
+type: "USERS"
 
 ```
-server.emit('EVENT_ROOM', {
-    data: "root1 joined the room",
-});
-```
+server.emit('UPDATE_ROOM', {
+    type: "USERS",
+    data: ["room1", "room2]
+});```
+
+---
 
 - "MESSAGE_ROOM"
 

@@ -11,22 +11,37 @@ export class UsersService {
         userId: 0,
         username: 'root',
         password: 'alpine',
+        token: ""
       },
       {
         userId: 1,
         username: 'root1',
         password: 'alpine1',
+        token: ""
       },
     ];
   }
 
-  async loginWithToken(username: string, password: string, token: string) {}
+  private async  generateToken(user: User): Promise<string> {
+    return user.username+user.userId
+  }
 
   async login(username: string, password: string): Promise<User> {
     if (!username || !password) throw Error('(Username | Password) null');
 
     let user = this.users.find(user => user.username === username);
     if (!user || user.password !== password) throw Error('Invalid credentials');
+
+    user.token = await this.generateToken(user)
+
+    return user;
+  }
+
+  async loginWithToken(username: string, password: string, token: string): Promise<User> {
+    if (!username || !password || !token) throw Error('(Username | Password | Token) null');
+
+    let user = this.users.find(user => user.username === username);
+    if (!user || user.password !== password || user.token !== token) throw Error('Invalid credentials');
 
     return user;
   }

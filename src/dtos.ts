@@ -2,9 +2,15 @@ export class User {
   userId: number;
   username: string;
   password: string;
+  token: string;
 }
 
-export class Message {
+export class NetworkObjectAfterAuth {
+  token: string;
   from: string;
-  message: string;
+  data: any;
+}
+
+export class Message extends NetworkObjectAfterAuth {
+  any: string;
 }

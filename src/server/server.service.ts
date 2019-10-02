@@ -24,6 +24,121 @@ export class ServerService {
   constructor(private readonly _UsersService: UsersService) {}
   server: Server;
 
+  async login(socket: Socket, user: User): Promise<void> {
+    try {
+      user = await this._UsersService.loginWithToken(user.username, user.password, user.token);
+
+      var newUser: ServerUser = {
+        user: user,
+        socket: socket,
+      };
+      this._AppServer.users.push(newUser);
+    } catch (e) {
+      console.log(e.message);
+    }
+  }
+
+  async logout(socket: Socket): Promise<void> {
+    var user: ServerUser = await this.getUserFromSocket(socket);
+    if (user === undefined) return;
+
+    this.removeUserFromAll(user)
+  }
+
+  async joinRoom(socket: Socket, room: string): Promise<void> {
+    var user: ServerUser = await this.getUserFromSocket(socket);
+    if (user === undefined) return;
+
+    socket.join(room);
+    this.server
+      .to(room)
+      .emit('EVENT_ROOM', user.user.username + ' joined the room');
+
+    this.addUserToRoom(user, room);
+  }
+
+  async leaveRoom(socket: Socket, room: string): Promise<void> {
+    var user: ServerUser = await this.getUserFromSocket(socket);
+    if (user === undefined) return;
+
+    socket.leave(room);
+    this.server
+      .to(room)
+      .emit('EVENT_ROOM', user.user.username + ' left the room')
+    
+    this.removeUserFromRoom(user, room);
+  }
+
+  ////////////////////////////////////////////////
+  ////////////////////// UTILS ///////////////////
+  ////////////////////////////////////////////////
+
+  // return true if added
+  private async addUserToRoom(user: ServerUser, roomName: string): Promise<Boolean> {
+    var room = this._AppServer.rooms.find(room => room.name === roomName);
+
+    if (room) {
+      this._AppServer.rooms.forEach(room => {
+        if (room.name === roomName) {
+          room.users.push(user);
+          return true;
+        }
+      });
+      return false;
+    }
+    var users: ServerUser[] = [user];
+    var newRoom: Room = {
+      name: roomName,
+      users: users,
+    };
+    this._AppServer.rooms.push(newRoom);
+    return true
+  }
+
+  // return true if removed
+  private async removeUserFromRoom(serverUser: ServerUser, roomName: string): Promise<Boolean> {
+    var room = await this.getRoomFromName(roomName);
+
+    if (room) {
+      this._AppServer.rooms.forEach(room => {
+        if (room.name === roomName) {
+          room.users = room.users.filter(user => user.socket.id !== serverUser.socket.id);
+          this.deleteEmptyRoom()
+          return true
+        }
+      });
+    }
+    return false
+  }
+
+    // return true if removed
+    private async removeUserFromAll(serverUser: ServerUser): Promise<void> {
+      this._AppServer.rooms.forEach(room => {
+        room.users = room.users.filter(user => user.socket.id !== serverUser.socket.id);
+      });
+      this._AppServer.users = this._AppServer.users.filter(
+        user => user.socket.id !== serverUser.socket.id,
+      );
+      this.deleteEmptyRoom()
+    }
+
+  // return ServerUser or undefined
+  private async getUserFromSocket(socket: Socket): Promise<ServerUser> {
+    return this._AppServer.users.find(user => user.socket.id === socket.id);
+  }
+
+  // return Room or undefined
+  private async getRoomFromName(roomName: string): Promise<Room> {
+    return this._AppServer.rooms.find(room => room.name === roomName)
+  }
+
+  // check if empty room and delete them
+  private async deleteEmptyRoom(): Promise<void> {
+    this._AppServer.rooms = this._AppServer.rooms.filter(
+      room => room.users.length > 0,
+    );
+  }
+
   async init(server: Server) {
     this.server = server;
   }
@@ -41,97 +156,5 @@ export class ServerService {
         console.log(user.user);
       });
     });
-  }
-
-  //   async sendMessageToRoom(socket: Socket, data: MessageData) {
-  //     // this.server.emit();
-  //   }
-
-  async addUserToRoom(user: ServerUser, roomName: string): Promise<void> {
-    var room = this._AppServer.rooms.find(room => room.name === roomName);
-
-    if (room === undefined) {
-      var users: ServerUser[] = [user];
-      var newRoom: Room = {
-        name: roomName,
-        users: users,
-      };
-      this._AppServer.rooms.push(newRoom);
-    } else {
-      this._AppServer.rooms.forEach(room => {
-        if (room.name === roomName) {
-          room.users.push(user);
-          return;
-        }
-      });
-    }
-  }
-
-  async login(socket: Socket, user: User): Promise<void> {
-    try {
-      user = await this._UsersService.login(user.username, user.password);
-
-      var newUser: ServerUser = {
-        user: user,
-        socket: socket,
-      };
-      this._AppServer.users.push(newUser);
-      this.server.emit(
-        'EVENT_SERVER',
-        newUser.user.username + ' joined the server',
-      );
-      console.log('hey');
-    } catch (e) {
-      console.log(e.message);
-    }
-  }
-
-  async logout(socket: Socket): Promise<void> {
-    var user: ServerUser = await this.getUserFromSocket(socket);
-    if (user === undefined) return;
-
-    // Remove user from any room
-    this._AppServer.rooms.forEach(room => {
-      var oldUserNb = room.users.length;
-      room.users = room.users.filter(user => user.socket.id !== socket.id);
-      if (oldUserNb !== room.users.length) this.leaveRoom(socket, room.name);
-    });
-
-    // Delete empty rooms
-    this._AppServer.rooms = this._AppServer.rooms.filter(
-      room => room.users.length > 0,
-    );
-
-    // Remove user from User Global Array
-    this._AppServer.users = this._AppServer.users.filter(
-      user => user.socket.id !== socket.id,
-    );
-    this.displayServerState();
-  }
-
-  private async getUserFromSocket(socket: Socket): Promise<ServerUser> {
-    return this._AppServer.users.find(user => user.socket.id === socket.id);
-  }
-
-  async joinRoom(socket: Socket, room: string): Promise<void> {
-    var user: ServerUser = await this.getUserFromSocket(socket);
-    if (user === undefined) return;
-
-    socket.join(room);
-    this.server
-      .emit('EVENT_ROOM', user.user.username + ' joined the room')
-      .to(room);
-
-    this.addUserToRoom(user, room);
-  }
-
-  async leaveRoom(socket: Socket, room: string): Promise<void> {
-    var user: ServerUser = await this.getUserFromSocket(socket);
-    if (user === undefined) return;
-
-    socket.leave(room);
-    this.server
-      .emit('EVENT_ROOM', user.user.username + ' left the room')
-      .to(room);
   }
 }

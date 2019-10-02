@@ -8,7 +8,7 @@ import {
   OnGatewayInit,
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
-import { User } from '../dtos';
+import { User, Message } from '../dtos';
 import { ServerService } from './server.service';
 
 @WebSocketGateway({ namespace: '/lobby' })
@@ -32,6 +32,12 @@ export class ServerGateway implements OnGatewayDisconnect, OnGatewayInit {
   @SubscribeMessage('LEAVE_ROOM_REQUEST')
   async leaveRoom(socket: Socket, room: string) {
     this._ServerService.leaveRoom(socket, room);
+  }
+
+  // TODO
+  @SubscribeMessage('MESSAGE')
+  async Message(socket: Socket, message: Message) {
+    // this._ServerService.Message(socket, message);
   }
 
   async handleDisconnect(socket: Socket) {
