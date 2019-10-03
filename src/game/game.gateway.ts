@@ -10,7 +10,7 @@ import { GameService } from './game.service';
 
 const PORT = Number(process.env.PORT) || 8080;
 
-@WebSocketGateway(PORT, { namespace: '/' })
+@WebSocketGateway({ namespace: '/' })
 export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server;
