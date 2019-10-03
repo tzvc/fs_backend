@@ -35,7 +35,7 @@ export class GameService {
       id: playerId,
       status: PlayerStatus.IN_LOBBY,
       gameId: this._gameIds++,
-      dirx: 1, // generate playren fejkgkj
+      dirx: 1,
       diry: 0,
       x: 0,
       y: 0,
@@ -44,7 +44,6 @@ export class GameService {
 
   removePlayer(playerId: string) {
     this._players.delete(playerId);
-    //if (this._players.size === 0) this._stopEngine(null);
   }
 
   getPlayers(): Player[] {
@@ -170,7 +169,6 @@ export class GameService {
           player.y + player.diry,
         )
       ) {
-        console.log('player died', player);
         player.status = PlayerStatus.IN_LOBBY;
         server.emit('lobby_update', {
           users: this.getPlayers(),
