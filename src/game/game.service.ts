@@ -172,6 +172,10 @@ export class GameService {
       ) {
         console.log('player died', player);
         player.status = PlayerStatus.IN_LOBBY;
+        server.emit('lobby_update', {
+          users: this.getPlayers(),
+          isGameRunning: this.isGameRunning(),
+        });
       }
     });
   }
