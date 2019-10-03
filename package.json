@@ -5,12 +5,12 @@
   "author": "",
   "license": "MIT",
   "scripts": {
-    "build": "rimraf dist && tsc -p tsconfig.build.json",
+    "postinstall": "rimraf dist && tsc -p tsconfig.build.json",
     "format": "prettier --write \"src/**/*.ts\"",
-    "start": "ts-node -r tsconfig-paths/register src/main.ts",
+    "startd": "ts-node -r tsconfig-paths/register src/main.ts",
     "start:dev": "tsc-watch -p tsconfig.build.json --onSuccess \"node dist/main.js\"",
     "start:debug": "tsc-watch -p tsconfig.build.json --onSuccess \"node --inspect-brk dist/main.js\"",
-    "start:prod": "node dist/main.js",
+    "start": "node dist/main.js",
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -32,7 +32,9 @@
     "reflect-metadata": "^0.1.12",
     "rimraf": "^2.6.2",
     "rxjs": "^6.3.3",
-    "ts-node": "8.1.0"
+    "ts-node": "8.1.0",
+    "tsconfig-paths": "3.8.0",
+    "typescript": "3.4.3"
   },
   "devDependencies": {
     "@nestjs/testing": "^6.0.0",
