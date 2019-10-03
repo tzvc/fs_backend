@@ -8,7 +8,9 @@ import {
 import { Socket } from 'socket.io';
 import { GameService } from './game.service';
 
-@WebSocketGateway(1080, { namespace: '/' })
+const PORT = Number(process.env.PORT) || 8080;
+
+@WebSocketGateway(PORT, { namespace: '/' })
 export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server;
