@@ -63,8 +63,10 @@ export class UsersService {
     user.userId = this.users.length;
     user.username = username;
     user.password = password;
-
     this.users.push(user);
+
+    user.token = await this.generateToken(user);
+
     return user;
   }
 
