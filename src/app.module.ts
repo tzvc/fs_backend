@@ -6,7 +6,7 @@ import { UsersModule } from './users/users.module';
 import { GameModule } from './game/game.module';
 
 @Module({
-  imports: [UsersModule, ServerModule, GameModule],
+  imports: [UsersModule, GameModule],
   controllers: [AppController],
   providers: [],
 })
