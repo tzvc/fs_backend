@@ -8,7 +8,7 @@ import {
   OnGatewayInit,
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
-import { User, MessageFromClient, ToggleReadyFromClient } from '../dtos';
+import { User, MessageFromClient, ToggleReadyFromClient, GameDirUpdateFromClient } from '../dtos';
 import { ServerService } from './server.service';
 
 @WebSocketGateway({ namespace: '/lobby' })
@@ -23,6 +23,7 @@ export class ServerGateway implements OnGatewayDisconnect, OnGatewayInit {
   @SubscribeMessage('LOGIN_REQUEST')
   async login(socket: Socket, user: User) {
     await this._ServerService.login(socket, user);
+    console.log("New User -> " + user.username)
   }
   async handleDisconnect(socket: Socket) {
     await this._ServerService.logout(socket);
@@ -53,7 +54,7 @@ export class ServerGateway implements OnGatewayDisconnect, OnGatewayInit {
   }
 
   @SubscribeMessage('GAME__DIR_UPDATE')
-  async Game__DirUpdate(socket: Socket, message: MessageFromClient) {
-    // this._ServerService.message(socket, message);
+  async Game__DirUpdate(socket: Socket, data: GameDirUpdateFromClient) {
+    await this._ServerService.Game__DirUpdate(socket, data);
   }
 }
