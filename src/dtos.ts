@@ -10,7 +10,13 @@ export class MessageFromClient {
   data: string;
 }
 
-export class NetworkMessageFromServer {
+export class ToggleReadyFromClient {
+  token: string;
+  isReady: boolean;
+}
+
+
+export class MessageFromServer {
   from: string;
   data: string;
 }
