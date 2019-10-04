@@ -184,7 +184,7 @@ export class ServerService {
           user.diry = 0;
         })
       }
-      room.engineTicker = <any>setInterval(() => this.tick(room), 1000);
+      room.engineTicker = <any>setInterval(() => this.tick(room), 100);
     })
   }
 
@@ -327,7 +327,7 @@ export class ServerService {
     var room = this._AppServer.rooms.find(room => room.name === roomName);
 
     if (room) {
-      user.gameId = room.users.length
+      user.gameId = room.users.length + 1
       for (var room of this._AppServer.rooms) {
         if (room.name === roomName) {
           room.users.push(user);
@@ -337,7 +337,7 @@ export class ServerService {
       return false;
     }
 
-    user.gameId = 0
+    user.gameId = 1
     var users: ServerUser[] = [user];
     var newRoom: Room = {
       name: roomName,
