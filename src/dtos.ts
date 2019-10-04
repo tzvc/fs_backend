@@ -5,12 +5,27 @@ export class User {
   token: string;
 }
 
+// FROM CLIENT
+
 export class MessageFromClient {
   token: string;
   data: string;
 }
 
-export class NetworkMessageFromServer {
+export class ToggleReadyFromClient {
+  token: string;
+  isReady: boolean;
+}
+
+export class GameDirUpdateFromClient {
+  token: string;
+  key: number;
+}
+
+
+// FROM SERVER
+
+export class MessageFromServer {
   from: string;
   data: string;
 }
