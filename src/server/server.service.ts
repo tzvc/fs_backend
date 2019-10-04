@@ -73,16 +73,20 @@ export class ServerService {
     var user: ServerUser = await this.getUserFromSocket(socket);
     if (user === undefined) return;
 
-    socket.join(room);
-    await this.addUserToRoom(user, room);
+    socket.join(room, async () => {
+      await this.addUserToRoom(user, room);
+      await this.update();
+     });
   }
 
   async leaveRoom(socket: Socket, room: string): Promise<void> {
     var user: ServerUser = await this.getUserFromSocket(socket);
     if (user === undefined) return;
 
-    socket.leave(room);
-    await this.removeUserFromRoom(user, room);
+     socket.leave(room, async () => {
+       await this.removeUserFromRoom(user, room);
+       await this.update();
+      });
   }
 
   // ROOM //
@@ -119,7 +123,6 @@ export class ServerService {
   ////////////////////////////////////////////////
 
   async update() {
-    this.displayServerState()
     // Update each client about available rooms
     let listOfRooms: string[] = await this.getRooms();
     this.server.emit('UPDATE_ROOMS_IN_SERVER', listOfRooms);
@@ -127,10 +130,10 @@ export class ServerService {
     // Update each room's users about its state
     for (var room of this._AppServer.rooms) {
       let _users = await this.getUsersInRoom(room)
-      this.server.emit('UPDATE_ROOM_STATE', {
+      this.server.to(room.name).emit('UPDATE_ROOM_STATE', {
         users: _users,
         isGameRunning: room.isPlaying
-      }).to(room.name);
+      });
     }
   }
 
@@ -173,6 +176,7 @@ export class ServerService {
   private async startGame(roomName: string): Promise<void> {
     this._AppServer.rooms.forEach(async room => {
       if (room.name === roomName) {
+        room.map = new Array(GRID_SIZE).fill(0).map(() => new Array(GRID_SIZE).fill(0));
         if (room.engineTicker !== null)
           return console.warn('Game already in progress, ignoring...');
         room.users.forEach(user => {
@@ -189,6 +193,11 @@ export class ServerService {
   }
 
   private tick(room: Room) {
+    if (room.isPlaying === false) {
+      clearInterval(room.engineTicker)
+      room.engineTicker = null;
+    }
+
     var myObject = []
     room.users.forEach(user => {
       myObject.push({
@@ -315,7 +324,6 @@ export class ServerService {
 
     if (room != null) {
       this.server.to(room).emit('MESSAGE', messageFromServer);
-      console.log('Message from ' + user.user.username + ' sent to ' + room);
     }
   }
 
@@ -400,6 +408,11 @@ export class ServerService {
 
   // check if empty room and delete them
   private async deleteEmptyRoom(): Promise<void> {
+    this._AppServer.rooms.forEach(room => {
+      if (room.users.length === 0 && room.engineTicker !== null) {
+        room.isPlaying = false
+      }
+    })
     this._AppServer.rooms = this._AppServer.rooms.filter(
       room => room.users.length > 0,
     );

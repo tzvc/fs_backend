@@ -148,7 +148,7 @@ export class GameService {
 
   _tick(server: Server) {
     server.emit('game_update', this.getPlayers());
-
+    console.log("test")
     //if player is last remaining, end game
     if (
       [...this._players.values()].filter(

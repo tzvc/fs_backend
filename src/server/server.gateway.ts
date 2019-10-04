@@ -15,15 +15,14 @@ import { ServerService } from './server.service';
 export class ServerGateway implements OnGatewayDisconnect, OnGatewayInit {
   @WebSocketServer() server: Server;
   constructor(private readonly _ServerService: ServerService) {}
-  afterInit() {
-    this._ServerService.init(this.server);
+  async afterInit() {
+    await this._ServerService.init(this.server);
   }
 
   // GENERAL //
   @SubscribeMessage('LOGIN_REQUEST')
   async login(socket: Socket, user: User) {
     await this._ServerService.login(socket, user);
-    console.log("New User -> " + user.username)
   }
   async handleDisconnect(socket: Socket) {
     await this._ServerService.logout(socket);
@@ -33,12 +32,10 @@ export class ServerGateway implements OnGatewayDisconnect, OnGatewayInit {
   @SubscribeMessage('JOIN_ROOM_REQUEST')
   async joinRoom(socket: Socket, room: string) {
     await this._ServerService.joinRoom(socket, room);
-    await this._ServerService.update();
   }
   @SubscribeMessage('LEAVE_ROOM_REQUEST')
   async leaveRoom(socket: Socket, room: string) {
     await this._ServerService.leaveRoom(socket, room);
-    await this._ServerService.update();
   }
 
   // ROOM //
